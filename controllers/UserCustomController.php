@@ -13,23 +13,6 @@ use app\models\UserAdminSearch;
 
 class UserCustomController extends \yii\web\Controller
 {
-    public function actionIndex() {
-        return $this->render('index');
-    }
-
-    public function actionLogin() {
-        return $this->render('../login/login');
-    }
-
-    public function actionLogout() {
-        Yii::$app->session->remove('UserData');
-        return $this->redirect('/');
-    }
-
-    public function actionLoginAdmin() {
-        return $this->render('../login/login-admin');
-    }
-
     public function hashed($type, $password) {
         $ciphering = "AES-128-CTR";
         $iv_length = openssl_cipher_iv_length($ciphering);
@@ -37,7 +20,7 @@ class UserCustomController extends \yii\web\Controller
         $encryption_iv = '1234567891011121';
         $encryption_key = "secret";
 
-        if ( strtolower($type) == 'enrcrypt' ) {
+        if ( strtolower($type) == 'encrypt' ) {
             // Encrypt Password
             $encryption = openssl_encrypt($password, $ciphering,$encryption_key, $options, $encryption_iv);
 
@@ -51,150 +34,21 @@ class UserCustomController extends \yii\web\Controller
         }
     }
 
-    public function actionLoginAdminPost() {
-        $ciphering = "AES-128-CTR";
-        $iv_length = openssl_cipher_iv_length($ciphering);
-        $options = 0;
-        $encryption_iv = '1234567891011121';
-        $encryption_key = "secret";
-
-        if ( empty($_POST["username"]) || empty($_POST["password"]) ) {
-            $usernameerr = "Name Is Required";
-            $passworderr = "Password Is Required";
-            $data_err = array($usernameerr,$passworderr);
-            return $this->render('../login/login', ["Data" => null, "err_data" => $data_err ]);
-        } else {
-            $password = $_POST["password"];
-
-            $UserAdminSearch = new UserAdminSearch();
-            $data = $UserAdminSearch->find()->where(["username" => $_POST["username"]])->one();
-
-            // If Data Not Empty
-            if ( !empty($data) ) {
-                // Check Username Data If Same
-                // Decrypt Password
-                $decryption = openssl_decrypt($data->password, $ciphering,$encryption_key, $options, $encryption_iv);
-                if ( $decryption != $_POST["password"]) {
-                    $usernameerr = null;
-                    $passworderr = "Wrong Password";
-                    $data_err = array($usernameerr, $passworderr);
-                    return $this->render('../login/login', ["Data" => null, "err_data" => $data_err ]);
-                } else {
-                    $session = Yii::$app->session;
-                    $session->set('UserData', $data);
-                    return $this->redirect('/');
-                }
-            } else {
-                // If Username Is Not The Same As Data
-                if ( $data->username == $_POST["username"]) {
-                    $usernameerr = "Wrong Username / Username";
-                    $passworderr = null;
-                    $data_err = array($usernameerr,$passworderr);
-                    return $this->render('../login/login', ["Data" => null, "err_data" => $data_err ]);
-                }
-            }
-        }
+    public function actionIndex() {
+        return $this->render('index');
     }
 
-    public function actionAdminRegisterPost() {
-        if ( empty($_POST["username"]) || empty($_POST["password"]) || empty($_POST["fullname"]) ) {
-            $fullnameerr = "Full Name Is Required";
-            $data_err = array($usernameerr,$passworderr,$fullnameerr);
-            return $this->render('../login/register', ["Data" => null, "err_data" => $data_err ]);
-        } else {
-            $password = $_POST["password"];
-            $ciphering = "AES-128-CTR";
-            $iv_length = openssl_cipher_iv_length($ciphering);
-            $options = 0;
-            $encryption_iv = '1234567891011121';
-            $encryption_key = "secret";
-            
-            // Encrypt Password
-            $encryption = openssl_encrypt($password, $ciphering,$encryption_key, $options, $encryption_iv);
-
-            $UserAdminSearch = new UserAdminSearch();
-            $data = $UserAdminSearch->find()->where(["username" => $_POST["username"]])->one();
-            // If Data Not Empty
-            if ( !empty($data) ) {
-                // Check Username Data If Same
-                if ( $data->username == $_POST["username"]) {
-                    $usernameerr = "Username Can't Be Same..";
-                    $passworderr = "";
-                    $fullnameerr = "";
-                    $data_err = array($usernameerr,$passworderr,$fullnameerr);
-                    return $this->render('../login/register', ["Data" => null, "err_data" => $data_err ]);
-                }
-            } else {
-                // If Username Is Not The Same As Data
-                $models = new User();
-                $models->username = $_POST["username"];
-                $models->fullname = $_POST["fullname"];
-                $models->password = $encryption;
-                $models->type = null;
-
-                if ( $models->validate() != false ) {
-                    $DataSend = "Success To Input Data";
-                    return $this->render('/', ["Data" => $DataSend, "err_data" => null ]);
-                } else {
-                    $DataSend = "Failed To Input Data";
-                    return $this->render('../login/register', ["Data" => $DataSend, "err_data" => null ]);
-                }
-            }
-        }
+    public function actionLogin() {
+        return $this->render('../login/login');
     }
 
-
-    public function actionUserRegister() {
-        return $this->render('../login/register-peserta', ["err_data" => null ]);
+    public function actionRegister() {
+        return $this->render('../login/register', ["err_data" => null ]);
     }
 
-    public function actionUserRegisterPost() {
-        if ( empty($_POST["username"]) || empty($_POST["password"]) || empty($_POST["fullname"]) ) {
-            $data_err = array($usernameerr,$passworderr);
-            return $this->render('../login/register', ["Data" => null, "err_data" => $data_err ]);
-        } else {
-            $password = $_POST["password"];
-            $ciphering = "AES-128-CTR";
-            $iv_length = openssl_cipher_iv_length($ciphering);
-            $options = 0;
-            $encryption_iv = '1234567891011121';
-            $encryption_key = "secret";
-            
-            // Encrypt Password
-            $encryption = openssl_encrypt($password, $ciphering,$encryption_key, $options, $encryption_iv);
-
-            $UsersSearch = new UsersSearch();
-            
-            // $data = $UsersSearch->find()->where(["username" => $_POST["username"]])->one();
-            // If Data Not Empty
-            if ( !empty($data) ) {
-                // Check Username Data If Same
-                if ( $data->username == $_POST["username"]) {
-                    $usernameerr = "Username Can't Be Same..";
-                    $passworderr = "";
-                    $fullnameerr = "";
-                    $data_err = array($usernameerr,$passworderr,$fullnameerr);
-                    return $this->render('../login/register', ["Data" => null, "err_data" => $data_err ]);
-                }
-            } else {
-                // If Username Is Not The Same As Data
-                $models = new Users();
-                $models->username = $_POST["username"];
-                $models->fullname = $_POST["fullname"];
-                $models->usia = $_POST["usia"];
-                $models->alamat = $_POST["alamat"];
-                $models->sekolah = $_POST["sekolah"];
-                $models->password = $encryption;
-
-                if ( $models->validate() != false ) {
-                    $DataSend = "Success To Input Data";
-                    return $this->redirect('/');
-                } else {
-                    $DataSend = "Failed To Input Data";
-                    return $this->render('../login/register', ["Data" => $DataSend, "err_data" => null ]);
-                }
-            }
-        }
+    public function actionLogout() {
+        Yii::$app->session->remove('UserData');
+        return $this->redirect('/');
     }
 
     public function actionLoginPost() {
@@ -228,6 +82,36 @@ class UserCustomController extends \yii\web\Controller
                     Yii::$app->session->remove('err_login');
                     Yii::$app->session->set('UserData', $DataFind);
                     return $this->redirect('/');
+                }
+            }
+        }
+    }
+
+    public function actionRegisterPost() {
+        if ( empty($_POST['username']) || empty($_POST['password']) ) {
+            return $this->redirect('/index.php?r=user-custom/register');
+        } else {
+            $password = $this->hashed('encrypt', $_POST['password']);
+
+            $UserSearch = new UsersSearch();
+            $CheckUser = $UserSearch->find()->where(['username' => $_POST['username']])->one();
+
+            if ( $CheckUser != null ) {
+                return $this->redirect('/index.php?r=user-custom/register');
+            } else {
+                $UserModel = new Users();
+                $UserModel->username = $_POST['username'];
+                $UserModel->password = $password;
+                $UserModel->fullname = $_POST['fullname'] != '' ? $_POST['fullname'] : null ;
+                $UserModel->usia = $_POST['usia'] != '' ? $_POST['usia'] : null;
+                $UserModel->alamat = $_POST['alamat'] != '' ? $_POST['alamat'] : null;
+                $UserModel->sekolah = $_POST['sekolah'] != '' ? $_POST['sekolah'] : null;
+                $UserModel->type = null;
+
+                if ( $UserModel->save() ) {
+                    return $this->redirect('/index.php?r=user-custom/login');
+                } else {
+                    return $this->redirect('/index.php?r=user-custom/register');
                 }
             }
         }

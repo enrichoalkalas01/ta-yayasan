@@ -4,6 +4,7 @@
 	}
 
 	#events .content-events .card {
+		width: 100% !important;
 		border-radius: 5px;
 		border: 1px solid rgba(0, 0, 0, 0.25);
 	}
@@ -19,6 +20,11 @@
 	}
 </style>
 <section id="events">
+	<div class="row">
+		<div class="col-12 content title" style="text-align: center; padding: 0px 2.5% 25px; font-weight: 700;">
+			<h1>List Of Upcoming Events</h1>
+		</div>
+	</div>
 	<div class="row">
 		<?php
 			$images = "https://blue.kumparan.com/image/upload/fl_progressive,fl_lossy,c_fill,q_auto:best,w_640/v1532922691/Event_terpopuler_syag8e.jpg";

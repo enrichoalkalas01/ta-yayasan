@@ -17,25 +17,29 @@ class DashboardController extends \yii\web\Controller
 {
     public function actionIndex() {
         $DataUser = Yii::$app->session->get('UserData');
-        if ( !empty($DataUser->type) ) {
-            return $this->render('../dashboard/index', [
-                "DataEvent" => null,
-            ]);
+        var_dump(empty($DataUser->type));
+        if ( empty($DataUser->type) == true ) {
+            return $this->redirect('/');
         } else {
-            $UserEvent = new EventSearch();
-            $UserJoin = new EventAttandanceSearch();
-            $JoinData = $UserJoin->find()->where(['users_id' => $DataUser->id])->limit(5)->all();
-            $TotalDataEvent = count($UserJoin->find()->where(['users_id' => $DataUser->id])->all());
-            $DataEvent = [];
-            for( $i = 0; $i < count($JoinData); $i++) {
-                $DataEvent[$i] = $UserEvent->find()->where(['id' => $JoinData[$i]->event_id])->all();
-            }
+            if ( $DataUser->type == 'admin' ) {
+                return $this->redirect('/index.php?r=admin/index');
+            } else {
+                $UserEvent = new EventSearch();
+                $UserJoin = new EventAttandanceSearch();
+                $JoinData = $UserJoin->find()->where(['users_id' => $DataUser->id])->limit(5)->all();
+                $TotalDataEvent = count(
+                    $UserJoin->find()->where(['users_id' => $DataUser->id])->all());
+                $DataEvent = [];
+                for( $i = 0; $i < count($JoinData); $i++) {
+                    $DataEvent[$i] = $UserEvent->find()->where(['id' => $JoinData[$i]->event_id])->all();
+                }
 
-            // var_dump($DataEvent[0][0]->title);
-            return $this->render('../dashboard/user/index', [
-                "DataEvent" => $DataEvent,
-                "TotalDataEvent" => $TotalDataEvent,
-            ]);
+                // var_dump($DataEvent[0][0]->title);
+                return $this->render('../dashboard/user/index', [
+                    "DataEvent" => $DataEvent,
+                    "TotalDataEvent" => $TotalDataEvent,
+                ]);
+            }
         }    
     }
 
