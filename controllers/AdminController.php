@@ -32,11 +32,29 @@ class AdminController extends \yii\web\Controller
         ]);
     }
 
-    public function actionEvent() {
-        echo 'event';
-    }
+    public function actionDetailEvent() {
+        // Get Id Event From Query Link
+        $EventId = Yii::$app->getRequest()->getQueryParam('id');
 
-    public function actionCreateEvent() {
-        // $this->render()
+        // Get Data Event
+        $Event = new EventSearch();
+        $DataEvent = $Event->find()->where(['id' => $EventId])->one();
+        
+        // Get Event Attandance
+        $EventAttandance = new EventAttandanceSearch();
+        $DataAttandance = $EventAttandance->find()->where(['event_id' => $EventId])->all();
+        
+        // Get Users By Event Attandance
+        $DataUser = array();
+        $User = new UsersSearch();
+        for ( $i = 0; $i < count($DataAttandance); $i++ ) {
+            $DataUser[$i] = $User->find()->where(['id' => $DataAttandance[$i]->users_id])->one();
+        }
+
+        return $this->render('../dashboard/admin/event-detail', [
+            "DataEvent" => $DataEvent,
+            "DataUser" => $DataUser,
+            "TotalDataUser" => count($DataUser),
+        ]);
     }
 }

@@ -99,7 +99,7 @@
                                     <td>'. $event->excerpt .'</td>
                                     <td>'. $event->date_from .'</td>
                                     <td>'. $event->date_to .'</td>
-                                    <td><a href="">R</a><a href="">E</a><a href="">D</a></td>
+                                    <td><a href="/index.php?r=admin/detail-event&id='. $event->id .'">Detail</a></td>
                                 </tr>';
                             }
                         ?>
